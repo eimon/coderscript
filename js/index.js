@@ -1,5 +1,4 @@
 let total = 0;
-let categoria = 0;
 const sumar = (precio) => total = total + precio;
 
 do{

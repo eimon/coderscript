@@ -182,12 +182,7 @@ do{
             let busqueda = prompt('Ingrese el nombre del producto:');
             let resultado = '';
             //Se crea un array con todos los productos
-            let productosDisponibles = [];
-            for(const categoria of productos.categorias){
-                for(const producto of categoria.productos){
-                    productosDisponibles.push(producto);
-                }
-            }
+            let productosDisponibles = productos.categorias.flatMap((categoria) => categoria.productos);
             resultado = productosDisponibles.filter((producto)=>producto.nombre.toLowerCase()==busqueda.toLowerCase())
             if(resultado.length){
                 console.log(resultado[0].nombre+': $'+resultado[0].precio+'\nSubtotal: $'+carrito.sumar(resultado[0]));
@@ -195,6 +190,7 @@ do{
             else
                 console.log('No se encontró el producto.');
             break;
+        //Búsqueda iterando por categoría y luego por productos de la misma
         case 2:
             let idCategoria = 0;
             do{

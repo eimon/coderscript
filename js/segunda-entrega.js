@@ -12,31 +12,34 @@ function getListado(lista){
 //Clase para acumular productos
 class Carrito{
     constructor(){
-        this.subtotal=0;
         this.productos = [];
+        this.fecha = new Date();
+        console.log('Ticket de compra\nFecha: '+this.fecha.toLocaleDateString()+'\nHora: '+this.fecha.toLocaleTimeString());
+    }
+    
+    subtotal(){
+        return this.productos.reduce((a,productos)=>a+productos.precio,0);
     }
 
+    //Método que recibe objeto como parámetro
     sumar(producto){
-        //Agregar al array de productos de la instancia
-        this.productos.push(producto);
-        //Acumular subtotal y devolver el mismo
-        return this.subtotal += producto.precio;
+        if(producto){
+            this.productos.push(producto);
+            console.log(producto.nombre+': $'+producto.precio+'\nSubtotal: $'+this.subtotal());
+        }else
+            console.log('Elemento no encontrado.');
     }
 
+    //Método que recibe id como parámetro
     anular(idProducto){
         //Verifica si existe en el array
         if(this.productos[idProducto]){
             //Elimina el producto del array y lo almaceno para mostrarlo en consola
             let anulado = this.productos.splice(idProducto,1);
-            //Calcula nuevamente el subtotal
-            this.subtotal = carrito.productos.reduce((a,productos)=>a+productos.precio,0);
-            console.log('Anulado '+anulado[0].nombre+': -$'+anulado[0].precio+'\nSubtotal: $'+this.subtotal);}
+            console.log('Anulado '+anulado[0].nombre+': -$'+anulado[0].precio+'\nSubtotal: $'+this.subtotal());
+        }
         else
             console.log('Opción no válida. Anulación cancelada');
-    }
-
-    getTotal(){
-        return this.subtotal;
     }
 }
 
@@ -180,15 +183,10 @@ do{
         //Búsqueda por texto
         case 1:
             let busqueda = prompt('Ingrese el nombre del producto:');
-            let resultado = '';
             //Se crea un array con todos los productos
             let productosDisponibles = productos.categorias.flatMap((categoria) => categoria.productos);
-            resultado = productosDisponibles.filter((producto)=>producto.nombre.toLowerCase()==busqueda.toLowerCase())
-            if(resultado.length){
-                console.log(resultado[0].nombre+': $'+resultado[0].precio+'\nSubtotal: $'+carrito.sumar(resultado[0]));
-            }
-            else
-                console.log('No se encontró el producto.');
+            //Se envía el primer resultado, si es que lo hubiera
+            carrito.sumar(productosDisponibles.filter((producto)=>producto.nombre.toLowerCase()==busqueda.toLowerCase())[0]);
             break;
         //Búsqueda iterando por categoría y luego por productos de la misma
         case 2:
@@ -199,11 +197,7 @@ do{
                 if(productos.categorias[idCategoria-1]){
                     let categoria = productos.categorias[idCategoria-1];
                     idProducto = parseInt(prompt('Seleccione un producto\n'+getListado(categoria.productos).join('\n')));
-                    if(categoria.productos[idProducto-1]){
-                        let producto = categoria.productos[idProducto-1];
-                        console.log(producto.nombre+': $'+producto.precio+'\nSubtotal: $'+carrito.sumar(producto));
-                    }else
-                        console.log('Opción no válida');
+                    carrito.sumar(categoria.productos[idProducto-1]);
                 }
             }while(idCategoria!=0);
             break;
@@ -215,4 +209,4 @@ do{
     }
 }while(opcion!=0);
 
-alert('El total es $'+carrito.getTotal());
+alert('El total es $'+carrito.subtotal());

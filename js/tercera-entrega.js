@@ -1,6 +1,22 @@
-function financial(x) {
-  return Number.parseFloat(x).toFixed(2);
+// FUNCIONES GENERALES
+function moneda(precio){
+  if(localStorage.getItem('moneda')=='500'){
+    return ArsPeso.format(precio);
+  }
+  else{
+    return USDollar.format(precio);
+  }
 }
+
+let USDollar = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+let ArsPeso = new Intl.NumberFormat('es-AR', {
+  style: 'currency',
+  currency: 'ARS',
+});
 
 function getPrecio(idProducto){
   let precio = 0;
@@ -13,9 +29,10 @@ function getPrecio(idProducto){
   return precio*parseFloat(localStorage.getItem('moneda'));
 }
 
-function getCantidad(idProducto){
-  return parseInt(carrito.productos.find((p)=>p.id==idProducto).cantidad);
-}
+// TO-DO: función que actualice todas las cantidades
+// function getCantidad(idProducto){
+//   return parseInt(carrito.productos.find((p)=>p.id==idProducto).cantidad);
+// }
 
 function dibujarTarjetas(categoria=null){  
   let articuloTarjeta = document.getElementById('tarjeta');
@@ -53,24 +70,26 @@ function verTodos(){
 function cambiarMoneda(){
   if(localStorage.getItem('moneda')!='500'){
     localStorage.setItem('moneda','500');
-    localStorage.setItem('simbolo','AR$');
+    localStorage.setItem('simbolo','🇦🇷');
   }else{
     localStorage.setItem('moneda','1');
-    localStorage.setItem('simbolo','U$D');
+    localStorage.setItem('simbolo','🇺🇸');
   }
   location.reload();
 }
+
+// CLASES
 
 class Producto{
   constructor(objProducto){
     this.id=objProducto.id;
     this.nombre=objProducto.nombre;
-    this.precio=financial(parseFloat(localStorage.getItem('moneda'))*objProducto.precio);
+    this.precio=parseFloat(localStorage.getItem('moneda'))*objProducto.precio;
     this.cantidad=objProducto.cantidad||1;
   }
 
   subtotal(){
-    return this.precio*getCantidad(this.id);
+    return this.precio*this.cantidad;
   }
   
   dibujar(articuloTarjeta){
@@ -78,8 +97,8 @@ class Producto{
     card.className='card col-md-3 col-sm-4 col-6';
     card.innerHTML=`
         <div class="card-body">
-            <h2>${this.nombre}</h2>
-            <p>$ ${this.precio}</p>
+            <h5>${this.nombre}</h5>
+            <p>${moneda(this.precio)}</p>
             <button onclick="carrito.sumar(${this.id})" class="btn btn-primary comprar">Comprar</button>
         </div>
     `;
@@ -97,10 +116,10 @@ class Categoria{
 
   dibujar(articuloTarjeta){
     const card = document.createElement('div');
-    card.className='card col-md-3 col-sm-4 col-6';
+    card.className='card col-md-6 col-sm-6 col-6';
     card.innerHTML+=`
     <div class="card-body">
-            <h2>${this.nombre}</h2>
+            <h5>${this.nombre}</h5>
             <p>Cantidad de productos: ${this.productos.length}</p>
             <button onclick="verProductos(${this.id})" class="btn btn-primary comprar">Ver Productos</button>
     </div>
@@ -112,59 +131,85 @@ class Categoria{
 class Carrito{
     constructor(){
         this.productos = JSON.parse(localStorage.getItem('productos'))?.map((producto)=>producto)|| [];
-        this.fecha = new Date();
-        console.log('Ticket de compra\nFecha: '+this.fecha.toLocaleDateString()+'\nHora: '+this.fecha.toLocaleTimeString());
     }
     
     total(){
-        return financial(this.productos.reduce((a,productos)=>a+getPrecio(productos.id)*getCantidad(productos.id),0));
+        return this.productos.reduce((a,productos)=>a+getPrecio(productos.id)*productos.cantidad,0);
+    }
+
+    setCant(idProductoCarrito,cant){
+      this.productos[idProductoCarrito].cantidad=parseInt(cant);
     }
 
     sumar(idProducto){
-      // Busca el producto en el carrito y si lo encuentra, suma uno. de no existir, crea un nuevo producto
-      if(!this.productos.find((p)=>p.id==idProducto)){
+      let producto_carrito = this.productos.find((p)=>p.id==idProducto)||false;
+      // Verifica si está en el carrito
+      if(!producto_carrito){
         let producto = elementos.find((i)=>i.id==idProducto);
+        // Desestructuración de producto para guardar en local storage
         let {precio, ...r_producto} = producto;
         this.productos.push(r_producto);
       }else{
-        this.productos.find((p)=>p.id==idProducto).cantidad+=1;
+        // Si existe, aumenta la cantidad
+        producto_carrito.cantidad+=1;
       }
+      // Guarda el carrito en local storage
       localStorage.setItem('productos',JSON.stringify(this.productos));
+      // Vuelve a dibujar la tabla
       this.dibujarTabla(document.getElementById('carrito'));
     }
 
     dibujarTabla(tabla){
-      tabla.innerHTML = '';
-      this.productos.forEach((p)=>{
+      tabla.innerHTML = '<form id="form_carrito>';
+      this.productos.forEach((p,i)=>{
         tabla.innerHTML += `
         <tr>
-        <td>${p.id}</td>
-        <td>${p.nombre}</td>
-        <td>${getPrecio(p.id)}</td>
-        <td>${getCantidad(p.id)}</td>
-        <td>${getCantidad(p.id)*getPrecio(p.id)}</td>
-      </tr>`;
+          <td>${p.id}</td>
+          <td>${p.nombre}</td>
+          <td>${moneda(getPrecio(p.id))}</td>
+          <td><button class="btn btn-danger" onclick="carrito.restar(${i})">-</button><input name="cantidad" value="${p.cantidad}"><button class="btn btn-success" onclick="carrito.sumar(${p.id})">+</button></td>
+          <td>${moneda(p.cantidad*getPrecio(p.id))}</td>
+          <td><button class="btn btn-danger" onclick="carrito.restar(${i},'todos')">Eliminar</button></td>
+        </tr>`;
       });
-      tabla.innerHTML+=`<tr><td colspan="4">TOTAL: ${localStorage.getItem('simbolo')||'U$D'} ${this.total()}</td></tr>`;
+      tabla.innerHTML+=`
+        <tr>
+          <td colspan="4">TOTAL: ${localStorage.getItem('simbolo')} ${moneda(this.total())}</td>
+        </tr>
+        </form>`;
     }
 
-    restar(idProducto){
-      // Busca el índice del producto en el array
-      let id = indexOf(this.productos.find((p)=>p.id==idProducto));
+    restar(idProductoCarrito,todos=false){
+      // Setea cantidad en 1 para que luego se elimine
+      todos&&(this.productos[idProductoCarrito].cantidad=1);
       // Resta 1 a la cantidad y si devuelve 0, lo saca del arreglo
-      this.productos[id].sub()||this.productos.splice(id,1);
+      (this.productos[idProductoCarrito].cantidad+=-1)>0||this.productos.splice(idProductoCarrito,1);
       localStorage.setItem('productos',JSON.stringify(this.productos));
+      this.dibujarTabla(document.getElementById('carrito'));
     }
 }
 
+
+// Acá empieza el código
+localStorage.getItem('moneda')||localStorage.setItem('moneda',1);
+localStorage.getItem('simbolo')||localStorage.setItem('simbolo','🇺🇸');
 //Instancia de carrito
 const carrito = new Carrito();
 carrito.dibujarTabla(document.getElementById('carrito'));
-localStorage.getItem('moneda')||localStorage.setItem('moneda',1);
-// localStorage.getItem('simbolo')||localStorage.setItem('simbolo','U$D');
+
+// TO-DO: Actualizar carrito con cantidades desde un form (agregar método de CLASE)
+// let form_carrito = document.getElementById('form_carrito');
+// form_carrito.addEventListener("keypress", function(event) {
+//   if (event.key === "Enter") {
+//     // Prevenir el evento por defecto
+//     event.preventDefault();
+//     // Función de actualización
+//   }
+// });
+
+
 let todos = stock.categorias.flatMap((categoria) => categoria.productos.map((producto)=>new Producto(producto)));
 sessionStorage.setItem('vista','categorias');
-let simbolo = localStorage.getItem('simbolo');
 let elementos = [];
 
 dibujarTarjetas();

@@ -1,0 +1,19 @@
+.dark{
+    background-color: #111111;
+    color: white;
+}
+
+.light{
+    background-color: white;
+    color: #111111;
+}
+
+header{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+input{
+    width: 30px;
+}

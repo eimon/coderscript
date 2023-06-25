@@ -1,14 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso JS</title>
-</head>
-<body>
-    
-    
-    <script src="js/segunda-entrega.js"></script>
-</body>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tercera entrega</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <header>
+        <img src="img/logo.png" alt="Logo">
+        <button id="modo" class="btn btn-dark">Dark Mode</button>
+    </header>
+    <main class="container">
+      <button class="btin btn-waring" onclick="verTodos()">Ver Todos</button>
+      <button class="btin btn-waring" onclick="volver()">Volver</button>
+      <button class="btin btn-waring" onclick="cambiarMoneda()">Cambiar Moneda</button>
+      <section>
+          <article id="tarjeta" class="row g-5">
+              <!--Tarjetas de productos-->
+          </article>
+      </section>
+
+      <section>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>ID</td>
+              <td>Producto</td>
+              <td>Precio unitario</td>
+              <td>Cantidad</td>
+              <td>Subtotal</td>
+            </tr>
+          </thead>
+          <tbody id="carrito">
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="js/productos.js"></script>
+    <script src="js/tercera-entrega.js"></script>
+  </body>
 </html>

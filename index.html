@@ -11,18 +11,18 @@
     <header>
         <img src="img/logo.png" alt="Logo">
         <button id="modo" class="btn btn-dark">Dark Mode</button>
+        <button id="moneda" class="btn btn-info" onclick="cambiarMoneda()"></button>
     </header>
     <main class="container">
-      <button class="btin btn-waring" onclick="verTodos()">Ver Todos</button>
-      <button class="btin btn-waring" onclick="volver()">Volver</button>
-      <button class="btin btn-waring" onclick="cambiarMoneda()">Cambiar Moneda</button>
+      <button class="btn btn-info" onclick="verTodos()">Ver Todos</button>
+      <button class="btn btn-success" onclick="volver()">Volver</button>
       <section>
-          <article id="tarjeta" class="row g-5">
+          <article id="tarjeta" class="row gx-5">
               <!--Tarjetas de productos-->
           </article>
       </section>
 
-      <section>
+      <!-- <section>
         <table class="table">
           <thead>
             <tr>
@@ -36,7 +36,33 @@
           <tbody id="carrito">
           </tbody>
         </table>
-      </section>
+      </section> -->
+
+      <!-- Button trigger modal -->
+      <div class="fixed-bottom m-3">
+      <button type="button" id="boton_carrito" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Carrito<span class="badge text-bg-secondary" id="cantidad"></span>
+      </button>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Carrito</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="carrito">
+              <!-- Elementos de carrito -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
 
 

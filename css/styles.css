@@ -17,3 +17,11 @@ header{
 input{
     width: 30px;
 }
+
+.division{
+    border-bottom: grey 1px solid;
+}
+
+#moneda{
+    border-radius: 50%;
+}

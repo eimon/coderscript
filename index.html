@@ -13,11 +13,11 @@
         <button id="modo" class="btn btn-dark">Dark Mode</button>
     </header>
     <main class="container">
-      <button class="btin btn-waring" onclick="verTodos()">Ver Todos</button>
-      <button class="btin btn-waring" onclick="volver()">Volver</button>
-      <button class="btin btn-waring" onclick="cambiarMoneda()">Cambiar Moneda</button>
+      <button class="btn btn-success" onclick="verTodos()">Ver Todos</button>
+      <button id="volver" class="btn btn-info" onclick="volver()">Volver</button>
+      <button class="btn btn-danger" onclick="cambiarMoneda()">Cambiar Moneda</button>
       <section>
-          <article id="tarjeta" class="row g-5">
+          <article id="tarjeta" class="row gx-2">
               <!--Tarjetas de productos-->
           </article>
       </section>
@@ -26,7 +26,7 @@
         <table class="table">
           <thead>
             <tr>
-              <td>ID</td>
+              <td>#</td>
               <td>Producto</td>
               <td>Precio unitario</td>
               <td>Cantidad</td>

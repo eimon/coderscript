@@ -36,17 +36,19 @@ function getPrecio(idProducto){
 
 function dibujarTarjetas(categoria=null){  
   let articuloTarjeta = document.getElementById('tarjeta');
-  if(sessionStorage.getItem('vista')=='categorias'){
-    articuloTarjeta.innerHTML='<h2>Categorías:</h2>';
-    elementos = stock.categorias.map((categoria) => new Categoria(categoria));
-  }
-  else if(sessionStorage.getItem('vista')=='productos'){
-    articuloTarjeta.innerHTML=`<h2>Productos de ${stock.categorias[categoria-1].nombre}:</h2>`;
-    elementos = stock.categorias[categoria-1].productos.map((producto)=>new Producto(producto));
-  }
-  else{
-    articuloTarjeta.innerHTML=`<h2>Todos los productos:</h2>`;
-    elementos = todos;
+  switch(sessionStorage.getItem('vista')){
+    case 'categorias':
+      articuloTarjeta.innerHTML='<h2>Categorías:</h2>';
+      elementos = stock.categorias.map((categoria) => new Categoria(categoria));
+      break;
+    case 'productos':
+      articuloTarjeta.innerHTML=`<h2>Productos de ${stock.categorias[categoria-1].nombre}:</h2>`;
+      elementos = stock.categorias[categoria-1].productos.map((producto)=>new Producto(producto));
+    break;
+    default:
+      articuloTarjeta.innerHTML=`<h2>Todos los productos:</h2>`;
+      elementos = todos;
+      break;
   }
 
   elementos.forEach((elemento)=>elemento.dibujar(articuloTarjeta));
@@ -55,16 +57,22 @@ function dibujarTarjetas(categoria=null){
 function verProductos(idCategoria){
   sessionStorage.setItem('vista','productos');
   dibujarTarjetas(idCategoria);
+  // Botón volver
+  document.getElementById('volver').style.display = 'inline';
 }
 
 function volver(){
   sessionStorage.setItem('vista','categorias');
   dibujarTarjetas();
+  //ocultar botón
+  document.getElementById('volver').style.display = 'none';
 }
 
 function verTodos(){
   sessionStorage.setItem('vista','todos');
   dibujarTarjetas();
+  // Boton volver
+  document.getElementById('volver').style.display = 'inline';
 }
 
 function cambiarMoneda(){
@@ -164,7 +172,7 @@ class Carrito{
       this.productos.forEach((p,i)=>{
         tabla.innerHTML += `
         <tr>
-          <td>${p.id}</td>
+          <td>${i+1}</td>
           <td>${p.nombre}</td>
           <td>${moneda(getPrecio(p.id))}</td>
           <td><button class="btn btn-danger" onclick="carrito.restar(${i})">-</button><input name="cantidad" value="${p.cantidad}"><button class="btn btn-success" onclick="carrito.sumar(${p.id})">+</button></td>
@@ -174,14 +182,14 @@ class Carrito{
       });
       tabla.innerHTML+=`
         <tr>
-          <td colspan="4">TOTAL: ${localStorage.getItem('simbolo')} ${moneda(this.total())}</td>
+          <td colspan="5" style="text-align:right;font-weight:bold">TOTAL: ${localStorage.getItem('simbolo')} ${moneda(this.total())}</td>
         </tr>
         </form>`;
     }
 
-    restar(idProductoCarrito,todos=false){
+    restar(idProductoCarrito,limpiar=false){
       // Setea cantidad en 1 para que luego se elimine
-      todos&&(this.productos[idProductoCarrito].cantidad=1);
+      limpiar&&(this.productos[idProductoCarrito].cantidad=1);
       // Resta 1 a la cantidad y si devuelve 0, lo saca del arreglo
       (this.productos[idProductoCarrito].cantidad+=-1)>0||this.productos.splice(idProductoCarrito,1);
       localStorage.setItem('productos',JSON.stringify(this.productos));

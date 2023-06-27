@@ -17,3 +17,7 @@ header{
 input{
     width: 30px;
 }
+
+#volver{
+    display: none;
+}

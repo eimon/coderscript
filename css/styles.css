@@ -29,3 +29,7 @@ input{
 #moneda{
     border-radius: 50%;
 }
+
+.bc-container{
+    max-width: 8%;
+}

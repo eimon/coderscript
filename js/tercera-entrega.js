@@ -29,6 +29,10 @@ function getPrecio(idProducto){
   return precio*parseFloat(localStorage.getItem('moneda'));
 }
 
+function getCantidad(idProducto){
+  return carrito.productos.find((p)=>p.id==idProducto)?.cantidad||0;
+}
+
 // TO-DO: función que actualice todas las cantidades
 // function getCantidad(idProducto){
 //   return parseInt(carrito.productos.find((p)=>p.id==idProducto).cantidad);
@@ -46,8 +50,8 @@ function dibujarTarjetas(categoria=null){
       elementos = stock.categorias[categoria-1].productos.map((producto)=>new Producto(producto));
     break;
     default:
-      articuloTarjeta.innerHTML=`<h2>Todos los productos:</h2>`;
-      elementos = todos;
+      articuloTarjeta.innerHTML=`<h2>Resultado de la búsqueda:</h2>`;
+      elementos = todos.filter((p)=>p.nombre.toLowerCase()==sessionStorage.getItem('busqueda').toLowerCase());
       break;
   }
 
@@ -56,6 +60,7 @@ function dibujarTarjetas(categoria=null){
 
 function verProductos(idCategoria){
   sessionStorage.setItem('vista','productos');
+  sessionStorage.setItem('categoria',idCategoria);
   dibujarTarjetas(idCategoria);
   // Botón volver
   document.getElementById('volver').style.display = 'inline';
@@ -68,8 +73,9 @@ function volver(){
   document.getElementById('volver').style.display = 'none';
 }
 
-function verTodos(){
-  sessionStorage.setItem('vista','todos');
+function buscar(){
+  sessionStorage.setItem('vista','busqueda');
+  sessionStorage.setItem('busqueda',prompt('Búsqueda de producto:'));
   dibujarTarjetas();
   // Boton volver
   document.getElementById('volver').style.display = 'inline';
@@ -101,13 +107,17 @@ class Producto{
   }
   
   dibujar(articuloTarjeta){
+    let cant = parseInt(getCantidad(this.id));
+    let contador = '';
+    if(cant>0)
+      contador = ` <span class="badge text-bg-secondary">${cant}</span>`;
     const card = document.createElement('div');
     card.className='card col-md-3 col-sm-4 col-6';
     card.innerHTML=`
         <div class="card-body">
             <h5>${this.nombre}</h5>
             <p>${moneda(this.precio)}</p>
-            <button onclick="carrito.sumar(${this.id})" class="btn btn-primary comprar">Comprar</button>
+            <button onclick="carrito.sumar(${this.id})" class="btn btn-primary comprar">Comprar${contador}</button>
         </div>
     `;
     articuloTarjeta.appendChild(card);
@@ -145,9 +155,10 @@ class Carrito{
         return this.productos.reduce((a,productos)=>a+getPrecio(productos.id)*productos.cantidad,0);
     }
 
-    setCant(idProductoCarrito,cant){
-      this.productos[idProductoCarrito].cantidad=parseInt(cant);
-    }
+    //TO-DO: Actualizar cantidades desde input de carrito
+    // setCant(idProductoCarrito,cant){
+    //   this.productos[idProductoCarrito].cantidad=parseInt(cant);
+    // }
 
     sumar(idProducto){
       let producto_carrito = this.productos.find((p)=>p.id==idProducto)||false;
@@ -165,6 +176,7 @@ class Carrito{
       localStorage.setItem('productos',JSON.stringify(this.productos));
       // Vuelve a dibujar la tabla
       this.dibujarTabla(document.getElementById('carrito'));
+      dibujarTarjetas(sessionStorage.getItem('categoria'));
     }
 
     dibujarTabla(tabla){
@@ -199,14 +211,16 @@ class Carrito{
       (this.productos[idProductoCarrito].cantidad+=-1)>0||this.productos.splice(idProductoCarrito,1);
       localStorage.setItem('productos',JSON.stringify(this.productos));
       this.dibujarTabla(document.getElementById('carrito'));
+      dibujarTarjetas(sessionStorage.getItem('categoria'));
     }
 }
 
 
 // Acá empieza el código
 localStorage.getItem('moneda')||localStorage.setItem('moneda',1);
+localStorage.getItem('simbolo')||localStorage.setItem('simbolo','🇺🇸');
 let boton_moneda = document.getElementById('moneda');
-boton_moneda.innerHTML = localStorage.getItem('simbolo')||localStorage.setItem('simbolo','🇺🇸');
+boton_moneda.innerHTML = localStorage.getItem('simbolo');
 //Instancia de carrito
 const carrito = new Carrito();
 carrito.dibujarTabla(document.getElementById('carrito'));
@@ -247,6 +261,7 @@ boton.onclick = () => {
 
 if(localStorage.getItem('mode')=='dark'){
   document.body.className = 'dark';
-  boton.innerText = 'Light Mode'
+  boton.innerText = 'Light Mode';
+  interior_carrito.className = 'modal-content bg-dark';
   // localStorage.setItem('mode','dark');
 }

@@ -168,23 +168,28 @@ class Carrito{
     }
 
     dibujarTabla(tabla){
-      tabla.innerHTML = '<form id="form_carrito>';
+      tabla.innerHTML = '';
+      let cant = 0;
       this.productos.forEach((p,i)=>{
+        cant +=p.cantidad;
         tabla.innerHTML += `
-        <tr>
-          <td>${i+1}</td>
-          <td>${p.nombre}</td>
-          <td>${moneda(getPrecio(p.id))}</td>
-          <td><button class="btn btn-danger" onclick="carrito.restar(${i})">-</button><input name="cantidad" value="${p.cantidad}"><button class="btn btn-success" onclick="carrito.sumar(${p.id})">+</button></td>
-          <td>${moneda(p.cantidad*getPrecio(p.id))}</td>
-          <td><button class="btn btn-danger" onclick="carrito.restar(${i},'todos')">Eliminar</button></td>
-        </tr>`;
+        <div class="row division">
+          <div class="col-9">
+            <h5>$${p.nombre} (${moneda(getPrecio(p.id))} c/u)</h5>
+            <button class="btn btn-danger" onclick="carrito.restar(${i})">-</button><input name="cantidad" value="${p.cantidad}"><button class="btn btn-success" onclick="carrito.sumar(${p.id})">+</button>
+            </div>
+          <div class="col-2">
+            <h5>${moneda(p.cantidad*getPrecio(p.id))}</h5>
+            <p><button class="btn btn-danger" onclick="carrito.restar(${i},'todos')">Eliminar</button></p>
+          </div>
+        </div>`;
       });
       tabla.innerHTML+=`
-        <tr>
-          <td colspan="5" style="text-align:right;font-weight:bold">TOTAL: ${localStorage.getItem('simbolo')} ${moneda(this.total())}</td>
-        </tr>
-        </form>`;
+        <div class="d-flex justify-content-end">
+          <h4>TOTAL: ${localStorage.getItem('simbolo')} ${moneda(this.total())}</h4>
+        </div>
+        `;
+      document.getElementById('cantidad').innerHTML = cant;
     }
 
     restar(idProductoCarrito,limpiar=false){
@@ -200,7 +205,8 @@ class Carrito{
 
 // Acá empieza el código
 localStorage.getItem('moneda')||localStorage.setItem('moneda',1);
-localStorage.getItem('simbolo')||localStorage.setItem('simbolo','🇺🇸');
+let boton_moneda = document.getElementById('moneda');
+boton_moneda.innerHTML = localStorage.getItem('simbolo')||localStorage.setItem('simbolo','🇺🇸');
 //Instancia de carrito
 const carrito = new Carrito();
 carrito.dibujarTabla(document.getElementById('carrito'));
@@ -224,15 +230,18 @@ dibujarTarjetas();
 
 
 let boton = document.getElementById('modo');
+let interior_carrito = document.getElementsByClassName('modal-content')[0];
 boton.onclick = () => {
   if (localStorage.getItem('mode')!='dark'){
     document.body.className = 'dark';
-    boton.innerText = 'Light Mode'
+    boton.innerText = 'Light Mode';
     localStorage.setItem('mode','dark');
+    interior_carrito.className = 'modal-content bg-dark';
   }else{
     document.body.className = 'light';
     boton.innerText = 'Dark Mode';
     localStorage.setItem('mode','light');
+    interior_carrito.className = 'modal-content bg-light';
   }
 }
 

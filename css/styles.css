@@ -21,3 +21,11 @@ input{
 #volver{
     display: none;
 }
+
+.division{
+    border-bottom: grey 1px solid;
+}
+
+#moneda{
+    border-radius: 50%;
+}

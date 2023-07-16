@@ -18,36 +18,33 @@ let ArsPeso = new Intl.NumberFormat('es-AR', {
 });
 
 async function renderizarTienda(categoria=null){
-    let data = await
-    fetch('/js/productos.json');
-    let stock = await data.json();
-    let articuloTarjeta = document.getElementById('tarjeta');
-    switch(sessionStorage.getItem('vista')){
-        case 'categorias':
-            articuloTarjeta.innerHTML='<h2>Categorías:</h2>';
-            elementos = stock.categorias.map((categoria) => new Categoria(categoria));
-            break;
-        case 'productos':
-            articuloTarjeta.innerHTML=`<h2>Productos de ${stock.categorias[categoria-1].nombre}:</h2>`;
-            elementos = stock.categorias[categoria-1].productos.map((producto)=>new Producto(producto));
-            break;
-        default:
-            articuloTarjeta.innerHTML=`<h2>Resultado de la búsqueda:</h2>`;
-            elementos = todos.filter((p)=>p.nombre.toLowerCase()==sessionStorage.getItem('busqueda').toLowerCase());
-            break;
+  let articuloTarjeta = document.getElementById('tarjeta');
+  articuloTarjeta.innerHTML = '';
+  switch(sessionStorage.getItem('vista')){
+    case 'categorias':
+      articuloTarjeta.innerHTML='<h2>Categorías:</h2>';
+      let data1 = await
+      fetch('https://fakestoreapi.com/products/categories');
+      let categorias = await data1.json();
+      elementos = categorias.map((categoria)=>new Categoria(categoria));
+      break;
+    case 'productos':
+      let data = await
+      fetch(`https://fakestoreapi.com/products/category/${categoria}`);
+      let stock = await data.json();
+      articuloTarjeta.innerHTML=`<h2>Productos de ${categoria}:</h2>`;
+      elementos = stock.map((producto)=>new Producto(producto));
+      break;
+    default:
+      articuloTarjeta.innerHTML=`<h2>Resultado de la búsqueda:</h2>`;
+      elementos = todos.filter((p)=>p.nombre.toLowerCase()==sessionStorage.getItem('busqueda').toLowerCase());
+      break;
     }
-    elementos.forEach((elemento)=>elemento.dibujar(articuloTarjeta,stock));
-    carrito.dibujarTabla(stock);
+    elementos.forEach((elemento)=>elemento.dibujar(articuloTarjeta));
+    // carrito.dibujarTabla(stock);
 }
 
-function getPrecio(idProducto,stock){
-  let precio = 0;
-  stock.categorias.forEach((cat)=>{
-    let producto = cat.productos.find((prod)=>prod.id==idProducto);
-    if (producto){
-      precio = producto.precio;
-    };
-  })
+function getPrecio(precio){
   return precio*parseFloat(localStorage.getItem('moneda'));
 }
 
@@ -55,10 +52,10 @@ function getCantidad(idProducto){
   return carrito.productos.find((p)=>p.id==idProducto)?.cantidad||0;
 }
 
-function verProductos(idCategoria){
+function verProductos(categoria){
   sessionStorage.setItem('vista','productos');
-  sessionStorage.setItem('categoria',idCategoria);
-  renderizarTienda(idCategoria);
+  sessionStorage.setItem('categoria',categoria);
+  renderizarTienda(categoria);
   // Botón volver
   document.getElementById('volver').style.display = 'inline';
 }

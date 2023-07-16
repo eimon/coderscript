@@ -8,12 +8,18 @@ const carrito = new Carrito();
 sessionStorage.getItem('vista')||sessionStorage.setItem('vista','categorias');
 //Traer productos
 renderizarTienda();
+carrito.dibujarTabla();
 
 let busqueda = document.getElementById('buscar');
 // busqueda.onclick(()=>{
 //   buscar();
 // })
 
+let boton_volver = document.getElementById('volver');
+boton_volver.onlick = () => {
+  console.log('volver');
+  volver();
+}
 
 let boton = document.getElementById('modo');
 let interior_carrito = document.getElementsByClassName('modal-content')[0];

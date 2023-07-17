@@ -59,10 +59,10 @@ class Producto{
       sumar(idProducto){
         let producto_carrito = this.productos.find((p)=>p.id==idProducto)||false;
         // Verifica si está en el carrito
-        let producto = elementos.find((i)=>i.id==idProducto);
+        let producto = elementos.find((i)=>i.id==idProducto)||null;
         Swal.fire({
           icon : 'info',
-          text: `¿Desea agregar ${producto.nombre} al carrito?`,
+          text: `¿Desea agregar ${(producto?.nombre||'un producto')} al carrito?`,
           showDenyButton: true,
           confirmButtonText: 'Agregar',
         }).then((result) => {

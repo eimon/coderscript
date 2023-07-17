@@ -29,15 +29,19 @@ async function renderizarTienda(categoria=null){
       elementos = categorias.map((categoria)=>new Categoria(categoria));
       break;
     case 'productos':
-      let data = await
+      let data2 = await
       fetch(`https://fakestoreapi.com/products/category/${categoria}`);
-      let stock = await data.json();
-      articuloTarjeta.innerHTML=`<h2>Productos de ${categoria}:</h2>`;
+      let stock = await data2.json();
+      articuloTarjeta.innerHTML=`<h2>${categoria.replace(/%20/g,' ').toUpperCase()}:</h2>`;
       elementos = stock.map((producto)=>new Producto(producto));
       break;
     default:
-      articuloTarjeta.innerHTML=`<h2>Resultado de la búsqueda:</h2>`;
-      elementos = todos.filter((p)=>p.nombre.toLowerCase()==sessionStorage.getItem('busqueda').toLowerCase());
+      let data3 = await
+      fetch(`https://fakestoreapi.com/products/`);
+      let todos = await data3.json();
+      articuloTarjeta.innerHTML=`<h2>Resultado de la búsqueda "${sessionStorage.getItem('busqueda')}":</h2>`;
+      busqueda = todos.filter((p)=>p.title.toLowerCase().includes(sessionStorage.getItem('busqueda').toLowerCase()));
+      elementos = busqueda.map((producto)=>new Producto(producto));
       break;
     }
     elementos.forEach((elemento)=>elemento.dibujar(articuloTarjeta));
@@ -48,13 +52,8 @@ function getPrecio(precio){
   return precio*parseFloat(localStorage.getItem('moneda'));
 }
 
-function getCantidad(idProducto){
-  return carrito.productos.find((p)=>p.id==idProducto)?.cantidad||0;
-}
-
 function verProductos(categoria){
   sessionStorage.setItem('vista','productos');
-  sessionStorage.setItem('categoria',categoria);
   renderizarTienda(categoria);
   // Botón volver
   document.getElementById('volver').style.display = 'inline';
@@ -62,7 +61,7 @@ function verProductos(categoria){
 
 function volver(){
   sessionStorage.setItem('vista','categorias');
-  dibujarTarjetas();
+  renderizarTienda();
   //ocultar botón
   document.getElementById('volver').style.display = 'none';
 }
@@ -70,7 +69,7 @@ function volver(){
 function buscar(){
   sessionStorage.setItem('vista','busqueda');
   sessionStorage.setItem('busqueda',prompt('Búsqueda de producto:'));
-  dibujarTarjetas();
+  renderizarTienda();
   // Boton volver
   document.getElementById('volver').style.display = 'inline';
 }
@@ -85,6 +84,23 @@ function cambiarMoneda(){
   }
   location.reload();
 }
-function error(mensaje){
-  document.getElementById('tarjeta').innerHTML = `<h2>${mensaje}</h2>`;
+
+function finalizar(){
+  if(carrito.total()>0){
+    Swal.fire({
+      icon: 'warning',
+      title: 'La compra va a finalizar',
+      text: '¿Desea continuar?',
+      showCancelButton: true,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        localStorage.removeItem('productos');
+        Swal.fire('¡Gracias por su compra!', '', 'success')
+        .then((res) => {
+          location.reload()
+        })
+      }
+    })
+  }
 }

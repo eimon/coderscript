@@ -5,39 +5,47 @@ let boton_moneda = document.getElementById('moneda');
 boton_moneda.innerHTML = localStorage.getItem('simbolo');
 //Inicializar variables
 const carrito = new Carrito();
-sessionStorage.getItem('vista')||sessionStorage.setItem('vista','categorias');
+sessionStorage.setItem('vista','categorias');
 //Traer productos
 renderizarTienda();
 carrito.dibujarTabla();
 
+
+//Funciones de botones
 let busqueda = document.getElementById('buscar');
-// busqueda.onclick(()=>{
-//   buscar();
-// })
+busqueda.onclick = ()=>{
+  buscar();
+}
 
 let boton_volver = document.getElementById('volver');
-boton_volver.onlick = () => {
-  console.log('volver');
+boton_volver.onclick = () => {
   volver();
 }
 
-let boton = document.getElementById('modo');
-let interior_carrito = document.getElementsByClassName('modal-content')[0];
-boton.onclick = () => {
-  if (localStorage.getItem('mode')!='dark'){
-    document.body.className = 'dark';
-    boton.innerText = 'Light Mode';
-    localStorage.setItem('mode','dark');
-    interior_carrito.className = 'modal-content bg-dark';
-  }else{
-    document.body.className = 'light';
-    boton.innerText = 'Dark Mode';
-    localStorage.setItem('mode','light');
-    interior_carrito.className = 'modal-content bg-light';
-  }
+let boton_finalizar = document.getElementById('finalizar');
+boton_finalizar.onclick = () => {
+  finalizar();
 }
-if(localStorage.getItem('mode')=='dark'){
-  document.body.className = 'dark';
-  boton.innerText = 'Light Mode';
-  interior_carrito.className = 'modal-content bg-dark';
+
+const productModal = document.getElementById('productModal')
+if (productModal) {
+  productModal.addEventListener('show.bs.modal', event => {
+    // Button that triggered the modal
+    const button = event.relatedTarget
+    // Extract info from data-bs-* attributes
+    const id = button.getAttribute('data-bs-id');
+    // If necessary, you could initiate an Ajax request here
+    // and then do the updating in a callback.
+    let producto = elementos.find((e)=>e.id==id);
+    // Update the modal's content.
+    const modalTitle = productModal.querySelector('.modal-title');
+    const modalBody = productModal.querySelector('.modal-body');
+
+    modalTitle.textContent = `${producto.nombre}`;
+    modalBody.innerHTML = `
+      <img src="${producto.image}" width="100%">
+      <p>Descripción: ${producto.descripcion}</p>
+      <p>Precio unitario: ${moneda(getPrecio(producto.precio))}</p>
+    `;
+  })
 }

@@ -2,7 +2,7 @@ class Producto{
     constructor(objProducto){
       this.id = objProducto.id;
       this.nombre = objProducto.title;
-      this.precio = parseFloat(localStorage.getItem('moneda'))*objProducto.price;
+      this.precio = objProducto.price;
       this.image = objProducto.image;
       this.descripcion = objProducto.description;
       this.categoria = objProducto.category;
@@ -14,14 +14,14 @@ class Producto{
     }
     
     dibujar(articuloTarjeta){
-      let cant = parseInt(getCantidad(this.id));
       const card = document.createElement('div');
       card.className='card col-md-3 col-sm-4 col-6';
       card.innerHTML=`
           <div class="card-body">
+              <a type="button" data-bs-toggle="modal" data-bs-target="#productModal" data-bs-id="${this.id}">
               <img src="${this.image}" height="100">
-              <h5>${this.nombre}</h5>
-              <p>${moneda(this.precio)}</p>
+              <h5>${this.nombre}</h5></a>
+              <p>${moneda(getPrecio(this.precio))}</p>
               <button onclick="carrito.sumar(${this.id})" class="btn btn-primary comprar">Comprar</button>
           </div>
       `;
@@ -39,14 +39,14 @@ class Producto{
       card.className='card col-md-6 col-sm-6 col-6';
       card.innerHTML+=`
       <div class="card-body">
-              <h5>${this.nombre}</h5>
-              <button onclick="verProductos('${this.nombre}')" class="btn btn-primary comprar">Ver Productos</button>
+              <h5>${this.nombre.toUpperCase()}</h5>
+              <button onclick=verProductos("${encodeURIComponent(this.nombre)}") class="btn btn-primary comprar">Ver Productos</button>
       </div>
       `;
       articuloTarjeta.appendChild(card);
     }
   }
-  //Clase para acumular productos
+  
   class Carrito{
       constructor(){
           this.productos = JSON.parse(localStorage.getItem('productos'))?.map((producto)=>producto)|| [];
@@ -59,19 +59,29 @@ class Producto{
       sumar(idProducto){
         let producto_carrito = this.productos.find((p)=>p.id==idProducto)||false;
         // Verifica si está en el carrito
-        if(!producto_carrito){
-          let producto = elementos.find((i)=>i.id==idProducto);
-          // Desestructuración de producto para guardar en local storage
-          let {image,descripcion, ...r_producto} = producto;
-          this.productos.push(r_producto);
-        }else{
-          // Si existe, aumenta la cantidad
-          producto_carrito.cantidad+=1;
-        }
-        // Guarda el carrito en local storage
-        localStorage.setItem('productos',JSON.stringify(this.productos));
-        // Vuelve a dibujar la tabla
-        this.dibujarTabla(document.getElementById('carrito'));
+        let producto = elementos.find((i)=>i.id==idProducto);
+        Swal.fire({
+          icon : 'info',
+          text: `¿Desea agregar ${producto.nombre} al carrito?`,
+          showDenyButton: true,
+          confirmButtonText: 'Agregar',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire('¡Agregado!', '', 'success')
+            if(!producto_carrito){
+              // Desestructuración de producto para guardar en local storage
+              let {image,descripcion, ...r_producto} = producto;
+              this.productos.push(r_producto);
+            }else{
+              // Si existe, aumenta la cantidad
+              producto_carrito.cantidad+=1;
+            }
+            // Guarda el carrito en local storage
+            localStorage.setItem('productos',JSON.stringify(this.productos));
+            // Vuelve a dibujar la tabla
+            this.dibujarTabla(document.getElementById('carrito'));
+          }
+        })
       }
   
       dibujarTabla(stock){
